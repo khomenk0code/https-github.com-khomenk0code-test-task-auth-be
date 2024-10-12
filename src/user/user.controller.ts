@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Put, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Put } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { UpdateUserProfileDto } from '../user/dto/update-user-profile.dto';
 
@@ -12,15 +12,11 @@ export class UserController {
 
   @Get('profile')
   getProfile(@Body() body: { userId: string }) {
-    console.log(body.userId);
     return this.usersService.findOneById(body.userId);
   }
 
   @Put('update')
-  async updateProfile(
-    @Body(new ValidationPipe())
-    updateData: UpdateUserProfileDto & { userId: string },
-  ) {
+  async updateProfile(@Body() updateData: UpdateUserProfileDto) {
     return this.usersService.update(updateData.userId, updateData);
   }
 }

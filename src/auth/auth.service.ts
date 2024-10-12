@@ -13,7 +13,10 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
   constructor(private usersService: UserService) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<{ userId: unknown; email: string; username: string }> {
     const user = await this.usersService.findOneByUsername(username);
 
     if (!user) {
@@ -26,7 +29,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid password');
     }
 
-    return { success: true };
+    return { userId: user._id, username: user.username, email: user.email };
   }
 
   async login(loginCredentials: { username: string; password: string }) {
@@ -34,12 +37,16 @@ export class AuthService {
       loginCredentials.username,
       loginCredentials.password,
     );
-    return { success: !!user };
+
+    return {
+      userId: user.userId,
+      username: user.username,
+      email: user.email,
+    };
   }
 
   async register(registerUserDto: RegisterUserDto) {
-    const { username, email, password, passwordConfirm } = registerUserDto;
-
+    const { username, email, password } = registerUserDto;
     const existingUserByEmail = await this.usersService.findOneByEmail(email);
     if (existingUserByEmail) {
       throw new ConflictException(`User with email:${email} already exists`);
@@ -53,15 +60,12 @@ export class AuthService {
       );
     }
 
-    if (password !== passwordConfirm) {
-      throw new UnauthorizedException('Passwords do not match');
-    }
-
     const user = await this.usersService.create(username, email, password);
 
     const userObject = user.toObject();
 
     return plainToInstance(UserResponseDto, {
+      userId: userObject._id,
       username: userObject.username,
       email: userObject.email,
     });

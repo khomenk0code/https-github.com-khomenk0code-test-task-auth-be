@@ -1,4 +1,10 @@
-import { IsOptional, IsString, IsEmail, MinLength } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEmail,
+  MinLength,
+  IsNotEmpty,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class UpdateUserProfileDto {
@@ -7,10 +13,12 @@ export class UpdateUserProfileDto {
 
   @IsOptional()
   @IsString()
+  @IsNotEmpty({ message: 'Username is required' })
   @Transform(({ value }) => value.trim())
   username?: string;
 
   @IsOptional()
+  @IsNotEmpty({ message: 'Email is required' })
   @IsEmail({}, { message: 'Invalid email' })
   @Transform(({ value }) => value.trim())
   email?: string;

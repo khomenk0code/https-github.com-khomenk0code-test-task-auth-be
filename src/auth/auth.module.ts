@@ -19,7 +19,7 @@ import { AuthController } from './auth.controller';
       }),
     }),
   ],
-  controllers: [AuthController], // Add AuthController here
+  controllers: [AuthController],
   providers: [AuthService],
   exports: [AuthService],
 })

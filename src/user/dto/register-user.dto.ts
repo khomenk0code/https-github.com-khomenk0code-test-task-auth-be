@@ -12,9 +12,4 @@ export class RegisterUserDto {
 
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
-
-  @MinLength(6, {
-    message: 'Password confirmation must be at least 6 characters long',
-  })
-  passwordConfirm: string;
 }

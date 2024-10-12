@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User } from './schema/user.schema';
+import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -38,8 +39,28 @@ export class UserService {
       .exec();
   }
 
-  async update(userId: string, updateData: any): Promise<User> {
-    console.log(updateData);
+  async update(
+    userId: string,
+    updateData: Partial<UpdateUserProfileDto>,
+  ): Promise<User> {
+    if (updateData.email) {
+      const existingUser = await this.userModel.findOne({
+        email: updateData.email,
+      });
+      if (existingUser && existingUser._id.toString() !== userId) {
+        throw new BadRequestException('Email already exists');
+      }
+    }
+
+    if (updateData.username) {
+      const existingUser = await this.userModel.findOne({
+        username: updateData.username,
+      });
+      if (existingUser && existingUser._id.toString() !== userId) {
+        throw new BadRequestException('Username already exists');
+      }
+    }
+
     if (updateData.password) {
       const salt = await bcrypt.genSalt();
       updateData.password = await bcrypt.hash(updateData.password, salt);
